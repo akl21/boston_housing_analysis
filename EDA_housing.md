@@ -18,6 +18,7 @@ sum(is.na(housing))
 
 #load libraries
 library(ggplot2)
+library(GGally)
 
 #######################
 #######################
@@ -80,3 +81,125 @@ ggplot(medv.per.chas) +
 ```
 
 ![](EDA_housing_files/figure-markdown_github/unnamed-chunk-1-2.png)
+
+``` r
+#compute % CAT.MEDV per CHAS = (0, 1)
+percent.chas = aggregate(housing$CAT..MEDV, by = list(housing$CHAS),
+                         FUN = mean)
+names(percent.chas) = c("CHAS", "MeanCATMEDV")
+
+#barchart of % CAT.MEDV versus CHAS
+ggplot(percent.chas) + geom_bar(aes(x = as.factor(CHAS), y = MeanCATMEDV), 
+                                stat = "identity", fill = "purple") +
+  labs(x = "Bounding Charles River", y = "Percent CAT.MEDV") +
+  ggtitle("% CAT.MEDV versus CHAS")
+```
+
+![](EDA_housing_files/figure-markdown_github/unnamed-chunk-1-3.png)
+
+``` r
+#histogram of MEDV
+ggplot(housing) + geom_histogram(aes(x = MEDV), binwidth = 5, fill = "blue",
+                                 color = "black") +
+  labs(y = "Frequency")+
+  ggtitle("Histogram of MEDV")
+```
+
+![](EDA_housing_files/figure-markdown_github/unnamed-chunk-1-4.png)
+
+``` r
+#investigate histogram of log(MEDV)
+ggplot(housing) + geom_histogram(aes(x = log(MEDV)), binwidth = 0.25, 
+                                 fill = "green",
+                                 color = "black") +
+  labs(y = "Frequency")+
+  ggtitle("Histogram of log(MEDV)")
+```
+
+![](EDA_housing_files/figure-markdown_github/unnamed-chunk-1-5.png)
+
+``` r
+#boxplots of MEDV for different values of CHAS
+ggplot(housing) +
+  geom_boxplot(aes(x = as.factor(CHAS), y = MEDV)) +
+  xlab("CHAS") + ggtitle("Boxplots of MEDV vs. CHAS")
+```
+
+![](EDA_housing_files/figure-markdown_github/unnamed-chunk-1-6.png)
+
+``` r
+#check the association between CHAS and CAT..MEDV
+table(cat.medv = housing$CAT..MEDV, chas = housing$CHAS)
+```
+
+    ##         chas
+    ## cat.medv   0   1
+    ##        0 398  24
+    ##        1  73  11
+
+``` r
+#nearly 85% of houses not on the Charles River have 
+#CAT..MEDV = 0, but in the overall population 83.4% 
+#have CAT..MEDV = 0, so not much difference
+nrow(housing[housing$CHAS == 0 & housing$CAT..MEDV == 0,])/
+  nrow(housing[housing$CHAS == 0,])
+```
+
+    ## [1] 0.8450106
+
+``` r
+nrow(housing[housing$CAT..MEDV == 0,])/nrow(housing)
+```
+
+    ## [1] 0.8339921
+
+``` r
+#but 31% of houses where CHAS = 1 have CAT..MEDV = 1,
+#as opposed to 16.6% of houses having CAT..MEDV = 1 overall
+nrow(housing[housing$CHAS == 1 & housing$CAT..MEDV == 1,])/
+  nrow(housing[housing$CHAS == 1,])
+```
+
+    ## [1] 0.3142857
+
+``` r
+nrow(housing[housing$CAT..MEDV == 1,])/nrow(housing)
+```
+
+    ## [1] 0.1660079
+
+``` r
+#graph the scatterplot of NOX versus LSTAT with points
+#colored by CHAS
+ggplot(housing, aes(x = LSTAT, y = NOX, color = as.factor(CAT..MEDV)))+
+         geom_point(alpha = 0.6) + labs(color = "CAT.MEDV") +
+  ggtitle("NOX vs. LSTAT by CAT.MEDV")
+```
+
+![](EDA_housing_files/figure-markdown_github/unnamed-chunk-1-7.png)
+
+``` r
+#lower percentages of low socio-economic status near the Charles river
+
+#calculate mean MEDV per RAD and CHAS
+#in aggregate() use argument drop = FALSE to include all combinations
+#of RAD and CHAS, both existing and missing
+medv.per.rad.chas = aggregate(housing$MEDV, 
+                              by = list(housing$RAD, housing$CHAS),
+                              FUN = mean, drop = FALSE) 
+names(medv.per.rad.chas) = c("RAD", "CHAS", "meanMEDV")
+
+#make a panel plot for meanMEDV versus RAD by CHAS
+ggplot(medv.per.rad.chas) +
+  geom_bar(aes(x = as.factor(RAD), y = meanMEDV), stat = "identity")+
+  xlab("RAD") + facet_grid(CHAS ~ ., labeller = labeller(CHAS = label_both))
+```
+
+![](EDA_housing_files/figure-markdown_github/unnamed-chunk-1-8.png)
+
+``` r
+#create a scatter plot matrix of MEDV and three predictors
+ggpairs(housing[,c("CRIM", "INDUS", "LSTAT", "MEDV")])
+```
+
+![](EDA_housing_files/figure-markdown_github/unnamed-chunk-1-9.png)
