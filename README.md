@@ -12,6 +12,7 @@ What factors influence the price of a home? In this project, data from census tr
   10. the full-value property tax rate per $10,000 (TAX),
   11. the pupil-to-teacher ratio by town in the tracts (PTRATIO),
   12. and the percentage of lower socio-economic status of the population (LSTAT).
+
 Dependent variables include:
   1. the median value of owner-occupied homes in $1,000's (MEDV),
   2. and whether of not the median value of owner-occupied homes in the tract are above $30,000 or not, encoded as a 1 if above $30,000 
